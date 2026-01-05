@@ -1,0 +1,81 @@
+services:
+  zabbix-db:
+    image: postgres:16-alpine
+    container_name: zabbix-db
+    restart: always
+    volumes:
+      - ./zbx_db_data:/var/lib/postgresql/data:rw
+    env_file: .env
+    networks:
+      - zabbix-net
+
+  zabbix-server:
+    image: zabbix/zabbix-server-pgsql:alpine-7.0-latest
+    container_name: zabbix-server
+    restart: always
+    ports:
+      - "10051:10051"
+    volumes:
+      - ./zbx_scripts:/usr/lib/zabbix/alertscripts:ro
+      - ./zbx_mibs:/var/lib/zabbix/mibs:ro
+      - /etc/localtime:/etc/localtime:ro
+    env_file: .env
+    depends_on:
+      - zabbix-db
+    networks:
+      - zabbix-net
+    # Garante que outros serviços saibam quando o server está pronto
+    healthcheck:
+      test: ["CMD-SHELL", "pgrep zabbix_server"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  zabbix-web:
+    image: zabbix/zabbix-web-nginx-pgsql:alpine-7.0-latest
+    container_name: zabbix-web
+    restart: always
+    ports:
+      - "80:8080"
+    env_file: .env
+    depends_on:
+      - zabbix-db
+      - zabbix-server
+    networks:
+      - zabbix-net
+
+  zabbix-agent:
+    image: zabbix/zabbix-agent:alpine-7.0-latest
+    container_name: zabbix-agent
+    restart: always
+    env_file: .env
+    networks:
+      - zabbix-net
+
+  zabbix-agent2:
+    image: zabbix/zabbix-agent2:alpine-7.0-latest
+    container_name: zabbix-agent2
+    restart: always
+    privileged: true
+    env_file: .env
+    networks:
+      - zabbix-net
+
+  zabbix-configurer:
+    image: python:3.11-slim
+    container_name: zabbix-configurer
+    user: root
+    volumes:
+      - .:/app
+    env_file: .env
+    depends_on:
+      - zabbix-web
+    networks:
+      - zabbix-net
+    restart: "no"
+    command: >
+      sh -c "pip install requests && python /app/init_zabbix.py"
+
+networks:
+  zabbix-net:
+    driver: bridge
