@@ -1,1 +1,11 @@
-/# Code Citations.md
+# Code Citations.md
+
+# Dados do banco PostgreSQL (não commitar)
+zbx_db_data/
+
+# Arquivo de variáveis de ambiente com credenciais
+.env
+
+# Outros arquivos temporários
+*.log
+*.tmp
