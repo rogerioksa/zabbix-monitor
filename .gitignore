@@ -1,7 +1,8 @@
 # Code Citations.md
 
 # Dados do banco PostgreSQL (não commitar)
-zbx_db_data/
+zbx_db_data/*
+!zbx_db_data/README.md
 
 # Arquivo de variáveis de ambiente com credenciais
 .env
