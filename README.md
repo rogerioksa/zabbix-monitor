@@ -1,17 +1,15 @@
 # Zabbix Monitor - Setup com Docker
 
-Este repositório contém um setup completo para monitoramento com Zabbix usando Docker Compose. Inclui configuração automatizada para templates Intelbras, notificações via Telegram e estrutura modular para extensões.
+Este repositório contém um setup completo para monitoramento com Zabbix usando Docker Compose. Inclui configuração para templates Intelbras, notificações via Telegram e estrutura modular para extensões.
 
 ## Pré-requisitos
 
 - Docker e Docker Compose instalados.
-- Python 3.x (para execução do script de automação `init_zabbix.py`).
 - Conta no Telegram para notificações (opcional, mas recomendado).
 
 ## Instalação
 
 1. Clone o repositório:
-
    ```bash
    git clone <url-do-repositorio>
    cd zabbix-monitor
@@ -19,13 +17,12 @@ Este repositório contém um setup completo para monitoramento com Zabbix usando
 
 2. Configure o arquivo `.env` com suas credenciais (veja seção Configuração).
 
-3. Suba os containers (a automação inicial será executada automaticamente):
-
+3. Suba os containers:
    ```bash
    docker-compose up -d
    ```
 
-4. Aguarde os serviços iniciarem (cerca de 2-3 minutos, incluindo a configuração inicial). Verifique com:
+4. Aguarde os serviços iniciarem (cerca de 2-3 minutos). Verifique com:
    ```bash
    docker-compose ps
    ```
@@ -37,13 +34,11 @@ Este repositório contém um setup completo para monitoramento com Zabbix usando
 Edite o arquivo `.env` na raiz do projeto com os seguintes valores:
 
 - **Banco de Dados PostgreSQL**:
-
   - `POSTGRES_USER`: Usuário do banco (padrão: zabbix).
   - `POSTGRES_PASSWORD`: Senha do banco.
   - `POSTGRES_DB`: Nome do banco (padrão: zabbix).
 
 - **Zabbix Server**:
-
   - `ZBX_HOSTNAME`: Nome do host do servidor Zabbix.
   - `ZBX_SERVER_DEFAULT_LOCALE`: Localização padrão (ex.: pt_BR).
   - `ZBX_STARTPOLLERS`: Número de pollers (ex.: 15).
@@ -51,19 +46,9 @@ Edite o arquivo `.env` na raiz do projeto com os seguintes valores:
   - `ZBX_CACHESIZE`: Tamanho do cache (ex.: 256M).
 
 - **Zabbix Web**:
-
   - `PHP_TZ`: Fuso horário PHP (ex.: America/Sao_Paulo).
   - `ZBX_DEFAULT_LOCALE`: Localização da interface web.
   - `ZBX_SERVER_HOST`: Host do servidor Zabbix.
-
-- **Automação**:
-  - `ZBX_API_TOKEN`: Token de API do Zabbix (opcional; se vazio, usa user/password).
-  - `ZBX_USER`: Usuário para login (padrão: Admin).
-  - `ZBX_PASSWORD`: Senha para login (padrão: zabbix).
-  - `TELEGRAM_TOKEN`: Token do bot Telegram (crie via @BotFather).
-  - `TELEGRAM_CHAT_ID`: ID do chat Telegram para notificações.
-  - `TEMPLATE_FILE`: Caminho para o template YAML (padrão: ./zbx_scripts/template_Intelbras_v7.yaml).
-  - `ZBX_URL`: URL da API do Zabbix (padrão: http://zabbix-web:8080/api_jsonrpc.php).
 
 **Atenção**: Nunca commite o `.env` com credenciais reais. Use `.env.example` como template.
 
@@ -81,9 +66,12 @@ Edite o arquivo `.env` na raiz do projeto com os seguintes valores:
 - Usuário padrão: Admin
 - Senha padrão: zabbix
 
-### Executando a Automação
+### Configuração Manual
 
-A automação inicial (importação de template, configuração do Telegram) é executada automaticamente pelo container `zabbix-configurer` após os serviços principais estarem prontos. Não é necessário executar manualmente.
+Após subir os containers, configure manualmente via interface web:
+- Importe o template Intelbras em Configuration > Templates.
+- Configure Media Types para Telegram em Administration > Media types.
+- Vincule notificações ao usuário Admin em Administration > Users.
 
 ### Monitoramento
 
@@ -98,17 +86,17 @@ A automação inicial (importação de template, configuração do Telegram) é 
 
 ## Desenvolvimento e Extensões
 
-- **Adicionar Templates**: Coloque arquivos YAML em `zbx_scripts/` e ajuste `TEMPLATE_FILE` no `.env`.
-- **Scripts de Alerta**: Adicione em `zbx_scripts/` e monte no docker-compose.yml. Exemplo: `telegram_webhook.js` para notificações Telegram via webhook.
+- **Adicionar Templates**: Coloque arquivos YAML em `zbx_scripts/` e importe via web.
+- **Scripts de Alerta**: Adicione em `zbx_scripts/` e configure no Zabbix.
 - **MIBs**: Adicione arquivos MIB em `zbx_mibs/` para suporte SNMP.
 
 Siga os princípios S.O.L.I.D. e DRY ao estender o código.
 
 ## Troubleshooting
 
-- **Erro de API**: Verifique `ZBX_API_TOKEN` e `ZBX_URL`.
-- **Template não encontrado**: Confirme caminho em `TEMPLATE_FILE`.
-- **Telegram não notifica**: Valide tokens e chat ID.
+- **Erro de API**: Verifique configurações na interface web.
+- **Template não encontrado**: Confirme upload via web.
+- **Telegram não notifica**: Valide tokens e chat ID na configuração.
 - **Banco não conecta**: Verifique credenciais PostgreSQL.
 
 ## Contribuição

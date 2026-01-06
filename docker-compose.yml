@@ -61,21 +61,6 @@ services:
     networks:
       - zabbix-net
 
-  zabbix-configurer:
-    image: python:3.11-slim
-    container_name: zabbix-configurer
-    user: root
-    volumes:
-      - .:/app
-    env_file: .env
-    depends_on:
-      - zabbix-web
-    networks:
-      - zabbix-net
-    restart: "no"
-    command: >
-      sh -c "pip install requests && python /app/init_zabbix.py"
-
 networks:
   zabbix-net:
     driver: bridge
