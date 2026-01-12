@@ -50,7 +50,9 @@ services:
     restart: always
     env_file: .env
     environment:
-      - ZBX_HOSTNAME=Zabbix Server
+      - ZBX_HOSTNAME=Zabbix-Agent-01
+      - ZBX_SERVER_HOST=zabbix-server
+      - ZBX_SERVER_ACTIVE=zabbix-server
     networks:
       - zabbix-net
 
@@ -60,6 +62,10 @@ services:
     restart: always
     privileged: true
     env_file: .env
+    environment:
+      - ZBX_HOSTNAME=Zabbix-Agent-02
+      - ZBX_SERVER_HOST=zabbix-server
+      - ZBX_SERVER_ACTIVE=zabbix-server
     networks:
       - zabbix-net
 

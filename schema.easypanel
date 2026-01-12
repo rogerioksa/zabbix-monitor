@@ -1,0 +1,96 @@
+{
+  "services": [
+    {
+      "type": "postgres",
+      "data": {
+        "projectName": "$(PROJECT_NAME)",
+        "serviceName": "zabbix-db",
+        "image": "postgres:16-alpine",
+        "password": "gPkjaKnnFI2RmE0Ydhq4dP8OJuflHQJU4UYX9xSn9j5j0TNP8m",
+        "mounts": [
+          {
+            "type": "volume",
+            "name": "zbx_db_data",
+            "mountPath": "/var/lib/postgresql/data"
+          }
+        ]
+      }
+    },
+    {
+      "type": "app",
+      "data": {
+        "projectName": "$(PROJECT_NAME)",
+        "serviceName": "zabbix-server",
+        "source": {
+          "type": "image",
+          "image": "zabbix/zabbix-server-pgsql:alpine-7.0-latest"
+        },
+        "env": "DB_SERVER_HOST=$(PROJECT_NAME)_zabbix-db\nPOSTGRES_USER=postgres\nPOSTGRES_PASSWORD=gPkjaKnnFI2RmE0Ydhq4dP8OJuflHQJU4UYX9xSn9j5j0TNP8m\nPOSTGRES_DB=$(PROJECT_NAME)",
+        "deploy": {
+          "replicas": 1,
+          "zeroDowntime": true
+        },
+        "mounts": [
+          {
+            "type": "volume",
+            "name": "zbx_scripts",
+            "mountPath": "/usr/lib/zabbix/alertscripts"
+          },
+          {
+            "type": "volume",
+            "name": "zbx_mibs",
+            "mountPath": "/var/lib/zabbix/mibs"
+          }
+        ]
+      }
+    },
+    {
+      "type": "app",
+      "data": {
+        "projectName": "$(PROJECT_NAME)",
+        "serviceName": "zabbix-web",
+        "source": {
+          "type": "image",
+          "image": "zabbix/zabbix-web-nginx-pgsql:alpine-7.0-latest"
+        },
+        "env": "ZBX_SERVER_HOST=$(PROJECT_NAME)_zabbix-server\nDB_SERVER_HOST=$(PROJECT_NAME)_zabbix-db\nPOSTGRES_USER=postgres\nPOSTGRES_PASSWORD=gPkjaKnnFI2RmE0Ydhq4dP8OJuflHQJU4UYX9xSn9j5j0TNP8m\nPOSTGRES_DB=$(PROJECT_NAME)\nPHP_TZ=America/Sao_Paulo",
+        "domains": [
+          {
+            "host": "noc-zabbix.mxudz6.easypanel.host",
+            "https": true,
+            "port": 8080,
+            "path": "/",
+            "internalProtocol": "http"
+          }
+        ],
+        "deploy": {
+          "replicas": 1,
+          "zeroDowntime": true
+        }
+      }
+    },
+    {
+      "type": "app",
+      "data": {
+        "projectName": "$(PROJECT_NAME)",
+        "serviceName": "zabbix-agent2",
+        "source": {
+          "type": "image",
+          "image": "zabbix/zabbix-agent2:alpine-7.0-latest"
+        },
+        "env": "ZBX_HOSTNAME=$(SERVICE_NAME)\nZBX_SERVER_HOST=$(PROJECT_NAME)_zabbix-server\nZBX_SERVER_ACTIVE=$(PROJECT_NAME)_zabbix-server",
+        "deploy": {
+          "replicas": 1,
+          "zeroDowntime": true
+        },
+        "mounts": [
+          {
+            "type": "bind",
+            "hostPath": "/var/run/docker.sock",
+            "mountPath": "/var/run/docker.sock"
+          }
+        ]
+      }
+    }
+  ]
+}
