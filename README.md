@@ -78,6 +78,10 @@ Após subir os containers, configure manualmente via interface web:
 - Adicione hosts via interface web usando o template Intelbras.
 - Configure alertas para Telegram.
 
+## Zabbix Proxy
+
+Para adicionar um Zabbix Proxy para monitoramento distribuído, consulte a pasta `zabbix-proxy/` com setup independente.
+
 ### Comandos Úteis
 
 - Parar containers: `docker-compose down`

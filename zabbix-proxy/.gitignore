@@ -1,0 +1,9 @@
+# Arquivo de variáveis de ambiente com credenciais
+.env
+
+# Dados do banco PostgreSQL (não commitar)
+zbx_proxy_data/
+
+# Outros arquivos temporários
+*.log
+*.tmp
